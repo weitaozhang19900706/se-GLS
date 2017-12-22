@@ -1,0 +1,44 @@
+Open db OK
+Get  : 2306.743158
+ Get  : 0.000000
+ compaction overhead: 26992
+Open db OK
+Get  : 2042.137237
+ Get  : 0.000000
+ compaction overhead: 27326
+Open db OK
+Get  : 132.732191
+ Get  : 0.000000
+ compaction overhead: 1765
+Open db OK
+Get  : 122.935845
+ Get  : 0.000000
+ compaction overhead: 1758
+Open db OK
+Get  : 886.440298
+ Get  : 0.000000
+ compaction overhead: 12233
+Open db OK
+Get  : 854.071525
+ Get  : 0.000000
+ compaction overhead: 12234
+Open db OK
+Get  : 50.911115
+ Get  : 0.000000
+ compaction overhead: 917
+Open db OK
+Get  : 0.776475
+ Get  : 0.000000
+ compaction overhead: 0
+Open db OK
+Get  : 112.831810
+ Get  : 0.000000
+ compaction overhead: 1791
+Open db OK
+Get  : 6.499735
+ Get  : 0.000000
+ compaction overhead: 68
+Open db OK
+Get  : 5.745964
+ Get  : 0.000000
+ compaction overhead: 68

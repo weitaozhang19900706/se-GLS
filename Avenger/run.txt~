@@ -1,0 +1,6 @@
+g++ -o sa Main.cpp libleveldb.a -lpthread
+sudo rm ~/.kde/share/apps/kdevelop/sessions/*/lock
+gcc Main.cpp -o sa 
+
+
+

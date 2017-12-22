@@ -1,0 +1,202 @@
+#include <assert.h>   
+#include <iostream>   
+#include "db.h"   
+#include "leveldb/filter_policy.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/time.h>
+#include <stdint.h>
+   
+    
+    #include <cassert>
+    #include <cmath>
+    #include <vector>
+    #include "src/cuckoofilter.h"
+  
+    #define  WriteNum 1000000*10
+    #define  ReadNum  1000000*10
+    #define  key_size 3
+    #define  value_size 1000
+    //using namespace std;   
+    using cuckoofilter::CuckooFilter;  
+    
+
+    
+    void CreateRandStr(char * ar,int len)
+    {
+	int i;
+    
+	for( i=0; i<len; i++ )
+	    ar[i] = rand() % 256;
+	   
+    }
+    
+    #define CreateRandInt (rand()*(rand()+999999))%(1<<31)
+    
+    int int_create()
+    {
+	int i = 0 ;
+	for(int j = 0; j < 4; j++){
+	    i = rand()%256 + i<<8;
+	}
+	return i;
+    }
+	
+    
+    void InttoChar(int x, char* ch, int size)
+    {
+	int i;
+	for(i = 0; i < size; i++ )
+	{
+	    ch[i] = char(x % 256);
+	    x = x/256;
+	}
+    }
+    
+    int CTI(char *ch, int size)
+    {
+	int i,v = 0;
+	for(i = size - 1;i >= 0; i--)
+	{
+	    v = v*256 + int(ch[i]); 
+	}
+	
+	return v;
+    }
+    
+    
+    //cuckoofilter begin	    
+	  CuckooFilter<size_t, 12> filter(WriteNum);
+	  
+  
+    
+    int main(int argc,char * argv[])   
+    {   
+      	  struct timeval tvmain;
+	  double t_start, t_end, t_duration;
+	  time_t t;
+	  srand((unsigned) time(&t));
+	  
+	  leveldb::Options options;
+	  options.block_cache = NULL;
+	  options.filter_policy = leveldb::NewBloomFilterPolicy(10);
+	  options.create_if_missing = true;
+	  
+	  leveldb::DB* db;
+	  std::string dbpath = "tdb";   
+	  
+	  leveldb::Status status = leveldb::DB::Open(options, dbpath, &db);   
+	  assert(status.ok());   
+	  //cout<<"Open db OK"<<std::endl;   
+	  printf("Open db OK\n");  
+	  
+	  std::string value;   
+	  leveldb::Status s ;   
+	  
+	  int hit = 0;
+	  int miss = 0;
+	  int keyin,keyout;
+	  
+	  
+
+	  int i = 0;
+	  
+	  {
+	      gettimeofday(&tvmain, NULL);
+	      t_start = (double)tvmain.tv_sec + (double)tvmain.tv_usec * 1e-6;
+	      
+		
+		while(i++ < WriteNum){
+		    
+		    char key1[key_size],key2[value_size];
+		    std::string k3,k4;
+		
+		    CreateRandStr(key1,key_size);
+		    CreateRandStr(key2,value_size);
+		    
+		    keyin = CTI(key1,key_size);
+		    
+		    k3 = key1;
+		    k4 = key2;
+		    
+		    
+		    
+		    //add cuckoofilter items here 
+		    if (filter.Add(keyin) != cuckoofilter::Ok) 
+			  break;
+ 
+		    s = db->Put(leveldb::WriteOptions(), k3,k4); 
+		}	 	 
+		
+		
+		
+	      
+	      gettimeofday(&tvmain, NULL);
+	      t_end = (double)tvmain.tv_sec + (double)tvmain.tv_usec * 1e-6;
+	      t_duration = t_end - t_start;
+
+	      printf("       %.3lf Write time: \n", t_duration);
+	
+	  }
+	
+	
+	
+	i=0;
+	std::string val = "test_value"; 
+
+	{
+	      
+		    
+		    char key1[key_size];
+		    std::string k3;
+		    
+	      
+		while(i++ < ReadNum){
+		    
+		    CreateRandStr(key1,key_size);  
+		    k3=key1;
+		    keyout = CTI(key1,key_size);
+		    //if(filter.Contain(keyout) == cuckoofilter::Ok){
+			      
+
+			 
+			  InttoChar(keyout,key1,key_size);
+			  k3 = key1;
+	
+			  s = db->Get(leveldb::ReadOptions (), k3, &val);  
+			  
+			  if(s.ok())
+			      hit++;
+			  if(s.IsNotFound())
+			      miss++;
+			 
+		    //} else {
+		      
+			// miss++;
+		    //}
+		    
+		}	 	 
+		
+		
+		
+		
+		printf("%d %d ", hit, miss);
+		
+
+	      
+	      
+	      db->Get_time();
+	      
+	      
+	          
+	      
+	}
+	  delete db;
+	  	 
+	  return 0;   
+    }  
+    
+    
+
+   
+    
